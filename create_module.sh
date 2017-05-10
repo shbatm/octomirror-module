@@ -10,7 +10,7 @@
 # MIT Licensed.
 #
 
-REPOSITORY_URL=https://github.com/roramirez/MagicMirror-Module-Template
+REPOSITORY_URL=https://github.com/DongerZonie/octomirror-module
 YEAR=$(date +"%Y")
 
 if ! [ -x "$(command -v git)" ]; then
@@ -120,8 +120,8 @@ cp -a $TMPDIR/.eslintrc.json $DIRECTORY_DST
 cp -a $TMPDIR/.stylelintrc $DIRECTORY_DST
 
 
-mv $DIRECTORY_DST/MagicMirror-Module-Template.js $DIRECTORY_DST/$MODULE_NAME.js
-mv $DIRECTORY_DST/MagicMirror-Module-Template.css $DIRECTORY_DST/$MODULE_NAME.css
+mv $DIRECTORY_DST/octomirror-module.js $DIRECTORY_DST/$MODULE_NAME.js
+# mv $DIRECTORY_DST/octomirror-module.css $DIRECTORY_DST/$MODULE_NAME.css
 mv $DIRECTORY_DST/templates/licenses/$LICENSE $DIRECTORY_DST/LICENSE.txt
 mv $DIRECTORY_DST/templates/CHANGELOG.md $DIRECTORY_DST/
 mv $DIRECTORY_DST/templates/README.md $DIRECTORY_DST/
