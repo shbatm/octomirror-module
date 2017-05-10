@@ -15,6 +15,7 @@ Module.register("octomirror-module", {
 	//Override dom generator.
 	getDom: function() {
 		var wrapper = document.createElement("img");
+		wrapper.height = "480px";
 		wrapper.src = "http://192.168.1.19:8080/?action=stream";
 		return wrapper;
 	},
