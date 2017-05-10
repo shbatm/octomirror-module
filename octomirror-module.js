@@ -14,8 +14,8 @@ Module.register("octomirror-module", {
 	
 	//Override dom generator.
 	getDom: function() {
-		var wrapper = document.createElement("div");
-		wrapper.innerHTML = this.config.text;
+		var wrapper = documents.createElement("IFRAME");
+		iframe.src = this.config.url;
 		return wrapper;
 	},
 	getHeader: function() {
