@@ -16,8 +16,7 @@ Module.register("octomirror-module", {
 	
 	//Override dom generator.
 	getDom: function() {
-		var wrapper = documents.createElement("IFRAME");		
-		wrapper.style = "border:0"
+		var wrapper = documents.createElement("img");
 		wrapper.width = this.config.width;
 		wrapper.height = this.config.height;
 		wrapper.src = this.config.url;
