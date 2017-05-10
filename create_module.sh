@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# This script creates a module in base MagicMirror-Module template
-# You can get a copy from https://github.com/roramirez/MagicMirror-Module-Template
+# This script creates an octomirror module in base MagicMirror-Module templat
 #
 #
 # Manager Module Template
