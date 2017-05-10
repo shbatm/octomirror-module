@@ -1,8 +1,8 @@
 /* Magic Mirror
- * Node Helper: {{MODULE_NAME}}
+ * Node Helper: octomirror-module
  *
- * By {{AUTHOR_NAME}}
- * {{LICENSE}} Licensed.
+ * By Kieran Ramnarine
+ * MIT Licensed.
  */
 
 var NodeHelper = require("node_helper");

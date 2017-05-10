@@ -1,18 +1,8 @@
 {
   "name": "MagicMirror-Module-Template",
   "version": "1.1.0",
-  "description": "Module Base template for create new modules for MagicMirror",
-  "main": "MagicMirror-Module-Template.js",
-  "author": "Rodrigo Ramírez Norambuena",
-  "license": "MIT",
-  "devDependencies": {
-    "grunt": "latest",
-    "grunt-eslint": "latest",
-    "grunt-jsonlint": "latest",
-    "grunt-markdownlint": "^1.0.13",
-    "grunt-stylelint": "latest",
-    "grunt-yamllint": "latest",
-    "stylelint-config-standard": "latest",
-    "time-grunt": "latest"
-  }
+  "description": "module for a Magic Mirror device that will interact with an Octoprint Instance",
+  "main": "octomirror-module.js",
+  "author": "Kieran Ramnarine",
+  "license": "MIT"
 }
