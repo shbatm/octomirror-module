@@ -17,10 +17,10 @@ Module.register("octomirror-module", {
 	//Override dom generator.
 	getDom: function() {
 		var wrapper = documents.createElement("IFRAME");		
-		iframe.style = "border:0"
-		iframe.width = this.config.width;
-		iframe.height = this.config.height;
-		iframe.src = this.config.url;
+		wrapper.style = "border:0"
+		wrapper.width = this.config.width;
+		wrapper.height = this.config.height;
+		wrapper.src = this.config.url;
 		return wrapper;
 	},
 	getHeader: function() {
