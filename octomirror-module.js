@@ -10,8 +10,8 @@
 Module.register("octomirror-module", {
 	defaults: {
 		
-		height:"100%",
-		width:"300px"
+		height:"480px",
+		width:"640px"
 	},
 	
 	//Override dom generator.
