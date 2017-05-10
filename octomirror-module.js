@@ -9,12 +9,18 @@
 
 Module.register("octomirror-module", {
 	defaults: {
-		text: "Octoprint Module!"
+		
+		height:"100%",
+		width:"300px"
 	},
 	
 	//Override dom generator.
 	getDom: function() {
-		var wrapper = documents.createElement("IFRAME");
+		var wrapper = documents.createElement("IFRAME");		
+		iframe.style = "border:0"
+		iframe.width = this.config.width;
+		iframe.height = this.config.height;
+		iframe.src =  this.config.url;
 		iframe.src = this.config.url;
 		return wrapper;
 	},
