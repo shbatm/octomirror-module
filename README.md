@@ -1,11 +1,11 @@
-# MagicMirror-Module-Template
-This is a module to help developers to start building their own modules for the [MagicMirror](https://github.com/MichMich/MagicMirror). 
+# Octomirror Module
+This is a module for a Magic Mirror device that will interact with an Octoprint Instance. 
 
-There samples of code for:
-- External request
-- Config parameters
-- Custom URL path route
-- Passing of messages (NOTIFICATIONS)
+The module will allow you to:
+- View a live feed of the raspicam stream
+- Start and stop prints
+- View G-Code viewer
+- Manually control the printer
 
 Also this module include tasks for checking your code. For that you need install the developer dependencies.
 
@@ -23,8 +23,8 @@ Includes configuration of code and style used in MagicMirror core. Also to test 
 
 ## Installation
 
-`bash -c "$(curl -sL https://raw.githubusercontent.com/roramirez/MagicMirror-Module-Template/master/create_module.sh)"`
+`bash -c "$(curl -sL https://raw.githubusercontent.com/DongerZonie/octomirror-module/master/create_module.sh)"`
 
 This creates a module example to start your developement.
 
-If you have any suggest, please let me know [by an issue](https://github.com/roramirez/MagicMirror-Module-Template/issues/new).
+If you have any suggest, please let me know [by an issue](https://github.com/DongerZonie/octomirror-module/issues/new).
