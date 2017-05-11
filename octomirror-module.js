@@ -14,9 +14,10 @@ Module.register("octomirror-module", {
 	
 	//Override dom generator.
 	getDom: function() {
-		var wrapper = document.createElement("img");
+		/*var wrapper = document.createElement("img");
 		wrapper.src = "http://192.168.1.19:8080/?action=stream";
-		return wrapper;
+		return wrapper;*/
+		
 	},
 	getHeader: function() {
 		return 'Octoprint!';
