@@ -14,9 +14,19 @@ Module.register("octomirror-module", {
 	
 	//Override dom generator.
 	getDom: function() {
-		/*var wrapper = document.createElement("img");
-		wrapper.src = "http://192.168.1.19:8080/?action=stream";
-		return wrapper;*/
+		var wrapper = document.createElement("div");
+		var stream = document.createElement("img");
+		stream.src = this.config.url + ":8080/?action=stream";
+		var files = document.createElement("div");
+		var fileList = document.createElement("div");
+		var fileUpload = document.createElement("div");
+		fileList.
+		files.appendChild(fileList);
+		files.appendChild(fileUpload);
+		wrapper.appendChild(stream);
+		wrapper.appendChild(document.createElement("br"));
+		wrapper.appendChild(files);
+		return wrapper;
 		
 	},
 	getHeader: function() {
