@@ -16,11 +16,9 @@ Module.register("octomirror-module", {
 	getDom: function() {
 		var wrapper = document.createElement("div");
 		var stream = document.createElement("img");
-		stream.src = this.config.url + ":8080/?action=stream";
 		var files = document.createElement("div");
 		var fileList = document.createElement("div");
 		var fileUpload = document.createElement("div");
-		fileList.
 		files.appendChild(fileList);
 		files.appendChild(fileUpload);
 		wrapper.appendChild(stream);
@@ -29,7 +27,31 @@ Module.register("octomirror-module", {
 		return wrapper;
 		
 	},
+	
 	getHeader: function() {
 		return 'Octoprint!';
-	}
+	},
+	
+	updateFiles: function() {
+		var data = null;
+		var request = new XMLHttpRequest();
+		/*request.addEventListener("readystatechange", function() {
+			if(this.readyState === 4) {
+				console.log(this.responseText);
+			}
+		});*/
+		request.onreadystatechange = function () {
+			/*if(this.readyState == 4  && this.status == 200) {
+				return this.responseText;
+			}*/
+		}
+		request.open("GET", this.config.url + "/api/files?recursive=true");
+		request.setRequestHeader("x-api-key", this.config.api_key);
+		request.send(data);
+		return this.responseText;
+	},
+	
+	start: function() {
+		console.log(this.updateFiles());
+	},
 });
