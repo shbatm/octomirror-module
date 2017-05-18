@@ -9,8 +9,12 @@
 
 Module.register("octomirror-module", {
 	defaults: {
-		
+		updateInterval: 10 * 60 * 1000,
+		retryDelay: 2500,
+		initialLoadDelay: 0,
 	},
+	
+	files: 0,
 	
 	//Override dom generator.
 	getDom: function() {
@@ -33,25 +37,44 @@ Module.register("octomirror-module", {
 	},
 	
 	updateFiles: function() {
-		var data = null;
-		var request = new XMLHttpRequest();
-		/*request.addEventListener("readystatechange", function() {
-			if(this.readyState === 4) {
-				console.log(this.responseText);
+		var self = this;
+		var retry = true;
+		var fileRequest = new XMLHttpRequest();
+		fileRequest.open("GET", this.config.url + "/api/files?recursive=true", true);
+		fileRequest.setRequestHeader("x-api-key", this.config.api_key);
+		fileRequest.onreadystatechange = function() {
+			if(this.readyState == 4 && this.status == 200){
+				self.processFiles(JSON.parse(this.responseText));
 			}
-		});*/
-		request.onreadystatechange = function () {
-			/*if(this.readyState == 4  && this.status == 200) {
-				return this.responseText;
-			}*/
+			if(retry){
+				self.scheduleUpdate((self.loaded) ? -1 : self.config.retryDelay);
+			}
 		}
-		request.open("GET", this.config.url + "/api/files?recursive=true");
-		request.setRequestHeader("x-api-key", this.config.api_key);
-		request.send(data);
-		return this.responseText;
+		fileRequest.send();
+		
 	},
 	
-	start: function() {
-		console.log(this.updateFiles());
+	processFiles: function(data) { 
+		if(this.files != data.files.length){
+			this.files = data.files.length;
+			console.log(this.files);
+		}
+	},
+	
+	scheduleUpdate: function(delay) {
+		var nextLoad = this.config.updateInterval;
+		if (typeof delay !== "undefined" && delay >= 0) {
+			nextLoad = delay;
+		}
+
+		var self = this;
+		setTimeout(function() {
+			self.updateFiles();
+		}, nextLoad);
+	},
+	
+	start: function(){
+		this.loaded = false;
+		this.scheduleUpdate(this.config.initialLoadDelay);
 	},
 });
