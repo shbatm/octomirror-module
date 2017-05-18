@@ -9,9 +9,9 @@
 
 Module.register("octomirror-module", {
 	defaults: {
-		updateInterval: 10 * 60 * 1000,
+		updateInterval: 60 * 1000,
 		retryDelay: 2500,
-		initialLoadDelay: 0,
+		initialLoadDelay: 2500,
 	},
 	
 	files: 0,
@@ -20,6 +20,7 @@ Module.register("octomirror-module", {
 	getDom: function() {
 		var wrapper = document.createElement("div");
 		var stream = document.createElement("img");
+		stream.src = this.config.url + ":8080/?action=stream";
 		var files = document.createElement("div");
 		var fileList = document.createElement("div");
 		var fileUpload = document.createElement("div");
@@ -54,11 +55,15 @@ Module.register("octomirror-module", {
 		
 	},
 	
-	processFiles: function(data) { 
-		if(this.files != data.files.length){
-			this.files = data.files.length;
-			console.log(this.files);
+	processFiles: function(data) {
+		this.files = [];
+		for(var x in data.files){
+			this.files.push(data.files[x].name);
 		}
+		console.log(this.files);
+		this.show(this.config.animationSpeed, {lockString: this.identifier});
+		this.loaded = true;
+		this.updateDom(this.config.animationSpeed);
 	},
 	
 	scheduleUpdate: function(delay) {
@@ -68,7 +73,8 @@ Module.register("octomirror-module", {
 		}
 
 		var self = this;
-		setTimeout(function() {
+		clearTimeout(this.updateTimer);
+		this.updateTimer = setTimeout(function() {
 			self.updateFiles();
 		}, nextLoad);
 	},
@@ -76,5 +82,6 @@ Module.register("octomirror-module", {
 	start: function(){
 		this.loaded = false;
 		this.scheduleUpdate(this.config.initialLoadDelay);
+		this.updateTimer = null;
 	},
 });
