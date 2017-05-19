@@ -14,21 +14,30 @@ Module.register("octomirror-module", {
 		initialLoadDelay: 2500,
 	},
 	
-	files: 0,
-	
 	//Override dom generator.
 	getDom: function() {
 		var wrapper = document.createElement("div");
 		var stream = document.createElement("img");
 		stream.src = this.config.url + ":8080/?action=stream";
-		var files = document.createElement("div");
-		var fileList = document.createElement("div");
+		var fileMenu = document.createElement("div");
+		var fileList = document.createElement("table");
+		for (var f in this.files) {
+			var file = this.files[f];
+			var row = document.createElement("tr");
+			fileList.appendChild(row);
+			var fileCell = document.createElement("td");
+			fileCell.className = "file";
+			fileCell.innerHTML = file;
+			row.appendChild(fileCell);
+			//Do the same for a button later
+			
+		}
 		var fileUpload = document.createElement("div");
-		files.appendChild(fileList);
-		files.appendChild(fileUpload);
+		fileMenu.appendChild(fileList);
+		fileMenu.appendChild(fileUpload);
 		wrapper.appendChild(stream);
 		wrapper.appendChild(document.createElement("br"));
-		wrapper.appendChild(files);
+		wrapper.appendChild(fileMenu);
 		return wrapper;
 		
 	},
@@ -80,6 +89,7 @@ Module.register("octomirror-module", {
 	},
 	
 	start: function(){
+		this.files = [];
 		this.loaded = false;
 		this.scheduleUpdate(this.config.initialLoadDelay);
 		this.updateTimer = null;
