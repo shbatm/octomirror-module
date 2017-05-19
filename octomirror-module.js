@@ -26,10 +26,13 @@ Module.register("octomirror-module", {
 			var row = document.createElement("tr");
 			fileList.appendChild(row);
 			var fileCell = document.createElement("td");
-			fileCell.className = "file";
+			fileCell.className = file;
 			fileCell.innerHTML = file;
 			row.appendChild(fileCell);
-			//Do the same for a button later
+			var buttonCell = document.createElement("td");
+			var printButton = document.createElement("button");
+			buttonCell.appendChild(printButton);
+			row.appendChild(buttonCell);
 			
 		}
 		var fileUpload = document.createElement("div");
