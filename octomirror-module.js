@@ -104,7 +104,7 @@ Module.register("octomirror-module", {
 		data.append("command", "select");
 		data.append("print", "true");
 		var printRequest = new XMLHttpRequest();
-		printRequest.open("POST", this.config.url + "/api/files/local/filename", true);
+		printRequest.open("POST", this.config.url + "/api/files/local/" + filename, true);
 		printRequest.setRequestHeader("x-api-key", this.config.api_key);
 		printRequest.send(data);  
 	}
