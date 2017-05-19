@@ -16,6 +16,7 @@ Module.register("octomirror-module", {
 	
 	//Override dom generator.
 	getDom: function() {
+		var self = this;
 		var wrapper = document.createElement("div");
 		var stream = document.createElement("img");
 		stream.src = this.config.url + ":8080/?action=stream";
@@ -32,7 +33,7 @@ Module.register("octomirror-module", {
 			var printButton = document.createElement("button");
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
 			printButton.addEventListener("click", function() {
-				this.sendPrint(fileCell.innerHTML);
+				self.sendPrint(fileCell.innerHTML);
 			});
 			printButton.appendChild(printButtonText);
 			buttonCell.appendChild(printButton);
