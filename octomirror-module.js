@@ -103,9 +103,10 @@ Module.register("octomirror-module", {
 	},
 	
 	sendPrint: function(filename){
-		var data = new FormData();
-		data.append("command", "select");
-		data.append("print", "true");
+		var data = JSON.stringify({
+			"command": "select",
+			"print": true
+		});
 		var printRequest = new XMLHttpRequest();
 		printRequest.open("POST", this.config.url + "/api/files/local/" + filename, true);
 		printRequest.setRequestHeader("x-api-key", this.config.api_key);
