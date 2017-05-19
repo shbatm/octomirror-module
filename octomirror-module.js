@@ -33,7 +33,7 @@ Module.register("octomirror-module", {
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
 			printButton.addEventListener("click", function() {
 				this.sendPrint(fileCell.innerHTML);
-			}
+			});
 			printButton.appendChild(printButtonText);
 			buttonCell.appendChild(printButton);
 			row.appendChild(buttonCell);
