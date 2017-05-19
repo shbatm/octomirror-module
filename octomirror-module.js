@@ -111,6 +111,7 @@ Module.register("octomirror-module", {
 		var printRequest = new XMLHttpRequest();
 		printRequest.open("POST", this.config.url + "/api/files/local/" + filename, true);
 		printRequest.setRequestHeader("x-api-key", this.config.api_key);
+		printRequest.setRequestHeader("content-type", "application/json");
 		printRequest.send(data);  
 	}
 });
