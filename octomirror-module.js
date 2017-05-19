@@ -24,17 +24,17 @@ Module.register("octomirror-module", {
 		for (var f in this.files) {
 			var file = this.files[f];
 			var row = document.createElement("tr");
-			fileList.appendChild(row);
 			var fileCell = document.createElement("td");
 			fileCell.className = file;
 			fileCell.innerHTML = file;
 			row.appendChild(fileCell);
 			var buttonCell = document.createElement("td");
 			var printButton = document.createElement("button");
-			buttonCell.appendChild(printButton);
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
+			printButton.appendChild(printButtonText);
+			buttonCell.appendChild(printButton);
 			row.appendChild(buttonCell);
-			
+			fileList.appendChild(row);
 		}
 		var fileUpload = document.createElement("div");
 		fileMenu.appendChild(fileList);
