@@ -33,8 +33,8 @@ Module.register("octomirror-module", {
 			var printButton = document.createElement("button");
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
 			printButton.addEventListener("click", function() {
-				console.log(this.textContent.substring(6) + ".gcode");
-				//self.sendPrint(this.textContent.substring(6) + ".gcode");
+				//console.log(this.textContent.substring(6) + ".gcode");
+				self.sendPrint(this.textContent.substring(6) + ".gcode");
 			});
 			printButton.appendChild(printButtonText);
 			buttonCell.appendChild(printButton);
