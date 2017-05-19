@@ -31,8 +31,7 @@ Module.register("octomirror-module", {
 			var buttonCell = document.createElement("td");
 			var printButton = document.createElement("button");
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
-			//printButton.onclick = this.sendPrint(fileCell.innerHTML);
-			console.log(fileCell.innerHTML);
+			printButton.onclick = this.sendPrint(fileCell.innerHTML);
 			printButton.appendChild(printButtonText);
 			buttonCell.appendChild(printButton);
 			row.appendChild(buttonCell);
