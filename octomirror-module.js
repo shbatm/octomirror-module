@@ -31,6 +31,7 @@ Module.register("octomirror-module", {
 			var buttonCell = document.createElement("td");
 			var printButton = document.createElement("button");
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
+			printButton.onclick = this.sendPrint(file);
 			printButton.appendChild(printButtonText);
 			buttonCell.appendChild(printButton);
 			row.appendChild(buttonCell);
@@ -98,4 +99,14 @@ Module.register("octomirror-module", {
 		this.scheduleUpdate(this.config.initialLoadDelay);
 		this.updateTimer = null;
 	},
+	
+	sendPrint: function(filename){
+		var data = new FormData();
+		data.append("command", "select");
+		data.append("print", "true");
+		var printRequest = new XMLHttpRequest();
+		printRequest.open("POST", this.config.url + "/api/files/local/filename", true);
+		fileRequest.setRequestHeader(x-api-key", this.config.api_key);
+		filerequest.send(data);  
+	}
 });
