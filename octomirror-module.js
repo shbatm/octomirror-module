@@ -31,8 +31,8 @@ Module.register("octomirror-module", {
 			var buttonCell = document.createElement("td");
 			var printButton = document.createElement("button");
 			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
-			//printButton.onclick = this.sendPrint(printButton);
-			console.log(printButtonText.textContent);
+			//printButton.onclick = this.sendPrint(fileCell.innerHTML);
+			console.log(fileCell.innerHTML);
 			printButton.appendChild(printButtonText);
 			buttonCell.appendChild(printButton);
 			row.appendChild(buttonCell);
@@ -75,7 +75,6 @@ Module.register("octomirror-module", {
 		for(var x in data.files){
 			this.files.push(data.files[x].name);
 		}
-		console.log(this.files);
 		this.show(this.config.animationSpeed, {lockString: this.identifier});
 		this.loaded = true;
 		this.updateDom(this.config.animationSpeed);
