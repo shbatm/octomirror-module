@@ -21,28 +21,30 @@ Module.register("octomirror-module", {
 		var stream = document.createElement("img");
 		stream.src = this.config.url + ":8080/?action=stream";
 		var fileMenu = document.createElement("div");
-		var fileList = document.createElement("table");
+		var fileList = document.createElement("select");
 		for (var f in this.files) {
-			var file = this.files[f];
-			var row = document.createElement("tr");
-			var fileCell = document.createElement("td");
-			fileCell.className = file;
-			fileCell.innerHTML = file;
-			row.appendChild(fileCell);
-			var buttonCell = document.createElement("td");
-			var printButton = document.createElement("button");
-			var printButtonText = document.createTextNode("Print " + file.substring(0, file.length-6));
-			printButton.addEventListener("click", function() {
-				//console.log(this.textContent.substring(6) + ".gcode");
-				self.sendPrint(this.textContent.substring(6) + ".gcode");
-			});
-			printButton.appendChild(printButtonText);
-			buttonCell.appendChild(printButton);
-			row.appendChild(buttonCell);
-			fileList.appendChild(row);
+			var option = document.createElement("option");
+			option.setAttribute("value", this.files[f]);
+			option.appendChild(document.createTextNode(this.files[f]));
+			fileList.appendChild(option);
 		}
+		var printButton = document.createElement("button");
+		printButton.appendChild(document.createTextNode("Send to Printer"));
+		printButton.addEventListener("click", function() {
+			self.sendPrint(fileList.value);
+		});
 		var fileUpload = document.createElement("div");
+		var uploadFileInput = document.createElement("input");
+		uploadFileInput.setAttribute("type", "file");
+		var uploadButton = document.createElement("button");
+		uploadButton.appendChild(document.createTextNode("Upload Files"));
+		uploadButton.addEventListener("click", function () {
+			self.uploadFile(uploadFileInput.value);
+		});
+		fileUpload.appendChild(uploadFileInput);
+		fileUpload.appendChild(uploadButton);
 		fileMenu.appendChild(fileList);
+		fileMenu.appendChild(printButton);
 		fileMenu.appendChild(fileUpload);
 		wrapper.appendChild(stream);
 		wrapper.appendChild(document.createElement("br"));
@@ -51,26 +53,16 @@ Module.register("octomirror-module", {
 		
 	},
 	
-	getHeader: function() {
-		return 'Octoprint!';
+	start: function(){
+		Log.info("Starting module: " + this.name);
+		this.files = [];
+		this.loaded = false; 
+		this.scheduleUpdate(this.config.initialLoadDelay);
+		this.updateTimer = null;
 	},
 	
-	updateFiles: function() {
-		var self = this;
-		var retry = true;
-		var fileRequest = new XMLHttpRequest();
-		fileRequest.open("GET", this.config.url + "/api/files?recursive=true", true);
-		fileRequest.setRequestHeader("x-api-key", this.config.api_key);
-		fileRequest.onreadystatechange = function() {
-			if(this.readyState == 4 && this.status == 200){
-				self.processFiles(JSON.parse(this.responseText));
-			}
-			if(retry){
-				self.scheduleUpdate((self.loaded) ? -1 : self.config.retryDelay);
-			}
-		}
-		fileRequest.send();
-		
+	getHeader: function() {
+		return 'Octoprint!';
 	},
 	
 	processFiles: function(data) {
@@ -96,11 +88,22 @@ Module.register("octomirror-module", {
 		}, nextLoad);
 	},
 	
-	start: function(){
-		this.files = [];
-		this.loaded = false;
-		this.scheduleUpdate(this.config.initialLoadDelay);
-		this.updateTimer = null;
+	updateFiles: function() {
+		var self = this;
+		var retry = true;
+		var fileRequest = new XMLHttpRequest();
+		fileRequest.open("GET", this.config.url + "/api/files?recursive=true", true);
+		fileRequest.setRequestHeader("x-api-key", this.config.api_key);
+		fileRequest.onreadystatechange = function() {
+			if(this.readyState == 4 && this.status == 200){
+				self.processFiles(JSON.parse(this.responseText));
+			}
+			if(retry){
+				self.scheduleUpdate((self.loaded) ? -1 : self.config.retryDelay);
+			}
+		}
+		fileRequest.send();
+		
 	},
 	
 	sendPrint: function(filename){
@@ -113,5 +116,21 @@ Module.register("octomirror-module", {
 		printRequest.setRequestHeader("x-api-key", this.config.api_key);
 		printRequest.setRequestHeader("content-type", "application/json");
 		printRequest.send(data);  
+	},
+	
+	uploadFile: function (file) {
+		var self = this;
+		var data = new FormData();
+		data.append("file", file);
+		var uploadRequest = new XMLHttpRequest();
+		uploadRequest.onreadystatechange = function() {
+				if (this.readState == 4 && this.status == 200){
+					self.updateFiles();
+			}
+		}
+		uploadRequest.open("POST", this.config.url + "/api/files/local", true);
+		uploadRequest.setRequestHeader("x-api-key", this.config.api_key);
+		uploadRequest.setRequestHeader("content-type", "multipart/form-data");
+		uploadRequest.send();
 	}
 });
