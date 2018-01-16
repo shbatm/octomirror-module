@@ -6,6 +6,10 @@
   "author": "Kieran Ramnarine",
   "contributor": "shbatm",
   "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shbatm/octomirror-module.git"

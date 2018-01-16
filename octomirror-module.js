@@ -12,7 +12,7 @@ Module.register("octomirror-module", {
         updateInterval: 60 * 1000,
         retryDelay: 2500,
         initialLoadDelay: 2500,
-        interactive: true,   // Set to false to hide the file drop down and only show the stream.
+        interactive: true, // Set to false to hide the file drop down and only show the stream.
     },
 
     //Override dom generator.
@@ -62,10 +62,22 @@ Module.register("octomirror-module", {
         this.loaded = false;
         this.scheduleUpdate(this.config.initialLoadDelay);
         this.updateTimer = null;
+
+        this.opClient = new OctoPrintClient();
+        this.opClient.options.baseurl = this.config.url;
+        this.opClient.options.apikey = this.config.api_key;
     },
 
     getHeader: function() {
         return 'Octoprint!';
+    },
+
+    getScripts: function() {
+        return [
+            this.file('jquery.min.js'),
+            this.file('lodash.min.js'),
+            this.file('packed_client.js'),
+        ];
     },
 
     processFiles: function(data) {
@@ -93,47 +105,23 @@ Module.register("octomirror-module", {
 
     updateFiles: function() {
         var self = this;
-        var retry = true;
-        var fileRequest = new XMLHttpRequest();
-        fileRequest.open("GET", this.config.url + "/api/files?recursive=true", true);
-        fileRequest.setRequestHeader("x-api-key", this.config.api_key);
-        fileRequest.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                self.processFiles(JSON.parse(this.responseText));
-            }
-            if (retry) {
-                self.scheduleUpdate((self.loaded) ? -1 : self.config.retryDelay);
-            }
-        };
-        fileRequest.send();
 
+        this.opClient.files.list()
+            .done(function(response) {
+                console.log(response);
+                self.processFiles(response);
+            });
     },
 
     sendPrint: function(filename) {
-        var data = JSON.stringify({
-            "command": "select",
-            "print": true
-        });
-        var printRequest = new XMLHttpRequest();
-        printRequest.open("POST", this.config.url + "/api/files/local/" + filename, true);
-        printRequest.setRequestHeader("x-api-key", this.config.api_key);
-        printRequest.setRequestHeader("content-type", "application/json");
-        printRequest.send(data);
+        this.opClient.files.select("local", filename, true);
     },
 
     uploadFile: function(file) {
         var self = this;
-        var data = new FormData();
-        data.append("file", file);
-        var uploadRequest = new XMLHttpRequest();
-        uploadRequest.onreadystatechange = function() {
-            if (this.readState == 4 && this.status == 200) {
+        this.opClient.files.upload("local", file)
+            .done(function(response) {
                 self.updateFiles();
-            }
-        };
-        uploadRequest.open("POST", this.config.url + "/api/files/local", true);
-        uploadRequest.setRequestHeader("x-api-key", this.config.api_key);
-        uploadRequest.setRequestHeader("content-type", "multipart/form-data");
-        uploadRequest.send();
+            });
     }
 });
