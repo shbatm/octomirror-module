@@ -66,6 +66,14 @@ Module.register("octomirror-module", {
         this.opClient = new OctoPrintClient();
         this.opClient.options.baseurl = this.config.url;
         this.opClient.options.apikey = this.config.api_key;
+
+        // Subscribe to live push updates from the server
+        this.opClient.socket.connect();
+        this.opClient.socket.onMessage("*", function(message) {
+            // TODO: Display progress of current print job
+            // Reference: http://docs.octoprint.org/en/master/api/push.html#sec-api-push-datamodel-currentandhistory
+            console.log("Octoprint", message);
+        });
     },
 
     getHeader: function() {
@@ -76,6 +84,7 @@ Module.register("octomirror-module", {
         return [
             this.file('jquery.min.js'),
             this.file('lodash.min.js'),
+            this.file('sockjs.min.js'),
             this.file('packed_client.js'),
         ];
     },
