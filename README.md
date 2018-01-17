@@ -11,6 +11,10 @@ The module will allow you to:
 
 If you have any suggest, please let me know [by an issue](https://github.com/DongerZonie/octomirror-module/issues/new).
 
+## Screenshot
+
+![](https://raw.githubusercontent.com/shbatm/octomirror-module/master/img/capture.png)
+
 ## Requirements
 
 * Raspberry Pi running an instance of Magic Mirror
