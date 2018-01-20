@@ -12,6 +12,7 @@ Module.register("octomirror-module", {
     defaults: {
         updateInterval: 60 * 1000,
         retryDelay: 2500,
+        showStream: true,
         interactive: true, // Set to false to hide the file drop down and only show the stream.
         debugMode: false, // Set to true to log all messages from OctoPrint Socket
     },
@@ -20,8 +21,12 @@ Module.register("octomirror-module", {
     getDom: function() {
         var self = this;
         var wrapper = document.createElement("div");
-        var stream = document.createElement("img");
-        stream.src = this.config.url + ":8080/?action=stream";
+
+        if (this.config.showStream) {
+            var stream = document.createElement("img");
+            stream.src = (this.config.streamUrl) ? this.config.streamUrl : this.config.url + ":8080/?action=stream";
+            wrapper.appendChild(stream);
+        }
 
         if (this.config.interactive) {
             var fileMenu = document.createElement("div");
@@ -64,7 +69,7 @@ Module.register("octomirror-module", {
                 <span> | Percent Complete: </span><span id="opPercent" class="title bright">N/A</span>
                 `;
 
-        wrapper.appendChild(stream);
+        
         wrapper.appendChild(infoWrapper);
         wrapper.appendChild(document.createElement("br"));
         return wrapper;
