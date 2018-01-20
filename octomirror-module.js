@@ -13,6 +13,8 @@ Module.register("octomirror-module", {
         updateInterval: 60 * 1000,
         retryDelay: 2500,
         showStream: true,
+        showTemps: true,
+        showDetailsWhenOffline: true,
         interactive: true, // Set to false to hide the file drop down and only show the stream.
         debugMode: false, // Set to true to log all messages from OctoPrint Socket
     },
@@ -60,16 +62,25 @@ Module.register("octomirror-module", {
 
         var infoWrapper = document.createElement("div");
         infoWrapper.className = "small";
-        infoWrapper.innerHTML = `<span>Printer State: </span><span id="opStateIcon"></span> <span id="opState" class="title bright"> </span>
+        infoWrapper.innerHTML = `<span>${this.translate("STATE")}: </span><span id="opStateIcon"></span> <span id="opState" class="title bright"> </span>
                 <br />
-                <span>File: </span><span id="opFile" class="title bright">N/A</span>
+                <div id="opMoreInfo">
+                <span>${this.translate("FILE")}: </span><span id="opFile" class="title bright">N/A</span>
                 <br />
-                <span> Time Elapsed: </span><span id="opPrintTime" class="title bright">N/A</span>
-                <span> | Time Remaining: </span><span id="opPrintTimeRemaining" class="title bright">N/A</span>
-                <span> | Percent Complete: </span><span id="opPercent" class="title bright">N/A</span>
-                `;
+                <span>${this.translate("ELAPSED")}: </span><span id="opPrintTime" class="title bright">N/A</span>
+                <span> | ${this.translate("REMAINING")}: </span><span id="opPrintTimeRemaining" class="title bright">N/A</span>
+                <span> | ${this.translate("PERCENT")}: </span><span id="opPercent" class="title bright">N/A</span>
+                <br />`;
 
-        
+        if (this.config.showTemps) {
+            infoWrapper.innerHTML += `
+                <span>${this.translate("TEMPS")} : ${this.translate("NOZZLE")}: </span><span id="opNozzleTemp" class="title bright">N/A</span>
+                <span> ${this.translate("TARGET")}: (<span id="opNozzleTempTgt">N/A</span><span>) | ${this.translate("BED")}: </span><span id="opBedTemp" class="title bright">N/A</span>
+                <span> ${this.translate("TARGET")}: (<span id="opBedTempTgt">N/A</span><span>)</span>
+                </div>
+                `;
+        }
+
         wrapper.appendChild(infoWrapper);
         wrapper.appendChild(document.createElement("br"));
         return wrapper;
@@ -79,7 +90,7 @@ Module.register("octomirror-module", {
         Log.info("Starting module: " + this.name);
         this.files = [];
         this.loaded = false;
-        this.scheduleUpdate(this.config.initialLoadDelay);
+        if (this.config.interactive) { this.scheduleUpdate(this.config.initialLoadDelay); }
         this.updateTimer = null;
 
         this.opClient = new OctoPrintClient();
@@ -115,6 +126,13 @@ Module.register("octomirror-module", {
             this.file('sockjs.min.js'),
             this.file('packed_client.js'),
         ];
+    },
+
+    getTranslations: function() {
+        return {
+            en: "translations/en.json",
+            de: "translations/de.json"
+        };
     },
 
     processFiles: function(data) {
@@ -162,25 +180,46 @@ Module.register("octomirror-module", {
     },
 
     updateData: function(data) {
-        document.getElementById("opState").textContent = (data.state.text.startsWith("Offline: SerialException")) ? "Offline / Disconnected" : data.state.text;
-        var icon = document.getElementById("opStateIcon");
+        console.log("Updating OctoPrint Data");
+        console.log($("#opState")[0]);
+        $("#opState")[0].textContent = (data.state.text.startsWith("Offline: SerialException")) ? this.translate("OFFLINE") : data.state.text;
+        var icon = $("#opStateIcon")[0];
         if (data.state.flags.printing) {
             icon.innerHTML = `<i class="fa fa-print" aria-hidden="true" style="color:green;"></i>`;
+            if (!this.config.showDetailsWhenOffline) { $("#opMoreInfo").show(); }
         } else if (data.state.flags.closedOrError) {
             icon.innerHTML = `<i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:red;"></i>`;
+            if (!this.config.showDetailsWhenOffline) { $("#opMoreInfo").hide(); }
         } else if (data.state.flags.paused) {
             icon.innerHTML = `<i class="fa fa-pause" aria-hidden="true" style="color:yellow;"></i>`;
+            if (!this.config.showDetailsWhenOffline) { $("#opMoreInfo").show(); }
         } else if (data.state.flags.error) {
             icon.innerHTML = `<i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:red;"></i>`;
+            if (!this.config.showDetailsWhenOffline) { $("#opMoreInfo").hide(); }
         } else if (data.state.flags.ready) {
             icon.innerHTML = `<i class="fa fa-check-circle" aria-hidden="true" style="color:green;"></i>`;
+            if (!this.config.showDetailsWhenOffline) { $("#opMoreInfo").show(); }
         } else if (data.state.flags.operational) {
             icon.innerHTML = `<i class="fa fa-check-circle" aria-hidden="true" style="color:green;"></i>`;
+            if (!this.config.showDetailsWhenOffline) { $("#opMoreInfo").show(); }
         }
-        document.getElementById("opFile").textContent = (data.job.file.name) ? data.job.file.name : "N/A";
-        document.getElementById("opPrintTime").textContent = (data.progress.printTime) ? data.progress.printTime.toHHMMSS() : "N/A";
-        document.getElementById("opPrintTimeRemaining").textContent = (data.progress.printTimeLeft) ? data.progress.printTimeLeft.toHHMMSS() : "N/A";
-        document.getElementById("opPercent").textContent = (data.progress.completion) ? Math.round(data.progress.completion) + "%" : "N/A";
+
+        $("#opFile")[0].textContent = (data.job.file.name) ? data.job.file.name : "N/A";
+        $("#opPrintTime")[0].textContent = (data.progress.printTime) ? data.progress.printTime.toHHMMSS() : "N/A";
+        $("#opPrintTimeRemaining")[0].textContent = (data.progress.printTimeLeft) ? data.progress.printTimeLeft.toHHMMSS() : "N/A";
+        $("#opPercent")[0].textContent = (data.progress.completion) ? Math.round(data.progress.completion) + "%" : "N/A";
+
+        if (this.config.showTemps) {
+            var temps = data.temps[data.temps.length - 1];
+            if (typeof temps.bed === "undefined") { // Sometimes the last data point is time only, so back up 1.
+                temps = data.temps[data.temps.length - 2];
+            }
+
+            $("#opNozzleTemp")[0].innerHTML = (temps.tool0.actual) ? temps.tool0.actual.round10(1) + "&deg;C" : "N/A";
+            $("#opNozzleTempTgt")[0].innerHTML = (temps.tool0.target) ? Math.round(temps.tool0.target) + "&deg;C" : "N/A";
+            $("#opBedTemp")[0].innerHTML = (temps.bed.actual) ? temps.bed.actual.round10(1) + "&deg;C" : "N/A";
+            $("#opBedTempTgt")[0].innerHTML = (temps.bed.target) ? Math.round(temps.bed.target) + "&deg;C" : "N/A";
+        }
     },
 
     notificationReceived: function(notification, payload, sender) {
@@ -213,4 +252,11 @@ Number.prototype.toHHMMSS = function() {
         time += (seconds < 10) ? "0" + seconds : String(seconds);
     }
     return time;
+};
+
+Number.prototype.round10 = function(precision) {
+    var factor = Math.pow(10, precision);
+    var tempNumber = this * factor;
+    var roundedTempNumber = Math.round(tempNumber);
+    return roundedTempNumber / factor;
 };

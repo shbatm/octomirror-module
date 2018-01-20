@@ -1,0 +1,15 @@
+{
+    "TITLE": "OctoPrint",
+
+    "STATE": "Druckerstatus",
+    "FILE": "File",
+    "ELAPSED": "Zeit vergangen",
+    "REMAINING": "Zeit verbleibend",
+    "PERCENT": "Prozent komplett",
+    "OFFLINE": "Offline / Getrennt",
+
+    "BED": "Bett",
+    "NOZZLE": "Düse",
+    "TEMPS": "Temperaturen",
+    "TARGET": "Z"
+}
