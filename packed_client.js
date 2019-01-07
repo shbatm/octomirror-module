@@ -92,6 +92,14 @@
         return params;
     };
 
+    var replaceUndefinedWithNull = function(key, value) {
+        if (value === undefined) {
+            return null;
+        } else {
+            return value;
+        }
+    };
+
     OctoPrintClient.prototype.getBaseUrl = function() {
         var url = this.options.baseurl;
         if (!_.endsWith(url, "/")) {
@@ -104,7 +112,9 @@
         additional = additional || {};
 
         var headers = $.extend({}, additional);
-        headers["X-Api-Key"] = this.options.apikey;
+        if (this.options.apikey) {
+            headers["X-Api-Key"] = this.options.apikey;
+        }
 
         if (this.options.locale !== undefined) {
             headers["X-Locale"] = this.options.locale;
@@ -166,7 +176,7 @@
     };
 
     OctoPrintClient.prototype.postJson = function(url, data, opts) {
-        return this.post(url, JSON.stringify(data), contentTypeJson(opts));
+        return this.post(url, JSON.stringify(data, replaceUndefinedWithNull), contentTypeJson(opts));
     };
 
     OctoPrintClient.prototype.put = function(url, data, opts) {
@@ -174,7 +184,7 @@
     };
 
     OctoPrintClient.prototype.putJson = function(url, data, opts) {
-        return this.put(url, JSON.stringify(data), contentTypeJson(opts));
+        return this.put(url, JSON.stringify(data, replaceUndefinedWithNull), contentTypeJson(opts));
     };
 
     OctoPrintClient.prototype.patch = function(url, data, opts) {
@@ -182,7 +192,7 @@
     };
 
     OctoPrintClient.prototype.patchJson = function(url, data, opts) {
-        return this.patch(url, JSON.stringify(data), contentTypeJson(opts));
+        return this.patch(url, JSON.stringify(data, replaceUndefinedWithNull), contentTypeJson(opts));
     };
 
     OctoPrintClient.prototype.delete = function(url, opts) {
@@ -419,6 +429,10 @@
 
     OctoPrintSocketClient.prototype.sendThrottleFactor = function() {
         this.sendMessage("throttle", this.rateThrottleFactor);
+    };
+
+    OctoPrintSocketClient.prototype.sendAuth = function(userId, session) {
+        this.sendMessage("auth", userId + ":" + session);
     };
 
     OctoPrintSocketClient.prototype.sendMessage = function(type, payload) {
@@ -931,40 +945,6 @@
 
     OctoPrintClient.registerComponent("languages", OctoPrintLanguagesClient);
     return OctoPrintLanguagesClient;
-});
-
-;
-
-// source: js/app/client/logs.js
-(function (global, factory) {
-    if (typeof define === "function" && define.amd) {
-        define(["OctoPrintClient"], factory);
-    } else {
-        factory(global.OctoPrintClient);
-    }
-})(this, function(OctoPrintClient) {
-    var url = "api/logs";
-
-    var OctoPrintLogsClient = function(base) {
-        this.base = base;
-    };
-
-    OctoPrintLogsClient.prototype.list = function(opts) {
-        return this.base.get(url, opts);
-    };
-
-    OctoPrintLogsClient.prototype.delete = function(file, opts) {
-        var fileUrl = url + "/" + file;
-        return this.base.delete(fileUrl, opts);
-    };
-
-    OctoPrintLogsClient.prototype.download = function(file, opts) {
-        var fileUrl = url + "/" + file;
-        return this.base.download(fileUrl, opts);
-    };
-
-    OctoPrintClient.registerComponent("logs", OctoPrintLogsClient);
-    return OctoPrintLogsClient;
 });
 
 ;
@@ -1711,6 +1691,484 @@
 
     OctoPrintClient.registerComponent("wizard", OctoPrintWizardClient);
     return OctoPrintWizardClient;
+});
+
+;
+
+// source: plugin/action_command_prompt/clientjs/action_command_prompt.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintActionCommandPromptClient = function(base) {
+        this.base = base;
+    };
+
+    OctoPrintActionCommandPromptClient.prototype.get = function(refresh, opts) {
+        return this.base.get(this.base.getSimpleApiUrl("action_command_prompt"), opts);
+    };
+
+    OctoPrintActionCommandPromptClient.prototype.select = function(choice, opts) {
+        var data = {
+            choice: choice
+        };
+        return this.base.simpleApiCommand("action_command_prompt", "select", data, opts);
+    };
+
+    OctoPrintClient.registerPluginComponent("action_command_prompt", OctoPrintActionCommandPromptClient);
+    return OctoPrintActionCommandPromptClient;
+});
+
+;
+
+// source: plugin/appkeys/clientjs/appkeys.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintAppKeysClient = function(base) {
+        this.base = base;
+    };
+
+    OctoPrintAppKeysClient.prototype.getKeys = function(opts) {
+        return this.base.simpleApiGet("appkeys", opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.getAllKeys = function(opts) {
+        return this.base.get(OctoPrintClient.prototype.getSimpleApiUrl("appkeys") + "?all=true", opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.generateKey = function(app, opts) {
+        return this.base.simpleApiCommand("appkeys", "generate", {"app": app}, opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.revokeKey = function(key, opts) {
+        return this.base.simpleApiCommand("appkeys", "revoke", {"key": key}, opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.decide = function(token, decision, opts) {
+        return this.base.postJson(this.base.getBlueprintUrl("appkeys") + "decision/" + token, {decision: !!decision}, opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.probe = function(opts) {
+        return this.base.get(this.base.getBlueprintUrl("appkeys") + "probe", opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.request = function(app, opts) {
+        return this.requestForUser(app, undefined, opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.requestForUser = function(app, user, opts) {
+        return this.base.postJson(this.base.getBlueprintUrl("appkeys") + "request", {app: app, user: user}, opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.checkDecision = function(token, opts) {
+        return this.base.get(this.base.getBlueprintUrl("appkeys") + "request/" + token, opts);
+    };
+
+    OctoPrintAppKeysClient.prototype.authenticate = function(app, user) {
+        var deferred = $.Deferred();
+        var client = this;
+
+        client.probe()
+            .done(function() {
+                client.requestForUser(app, user)
+                    .done(function(response) {
+                        var token = response.app_token;
+                        if (!token) {
+                            // no token received, something went wrong
+                            deferred.reject();
+                            return;
+                        }
+
+                        var interval = 1000;
+                        var poll = function() {
+                            client.checkDecision(token)
+                                .done(function(response) {
+                                    if (response.api_key) {
+                                        // got a decision, resolve the promise
+                                        deferred.resolve(response.api_key);
+                                    } else {
+                                        // no decision yet, poll a bit more
+                                        deferred.notify();
+                                        window.setTimeout(poll, interval);
+                                    }
+                                })
+                                .fail(function() {
+                                    // something went wrong
+                                    deferred.reject();
+                                });
+                        };
+                        window.setTimeout(poll, interval);
+                    })
+                    .fail(function() {
+                        // something went wrong
+                        deferred.reject();
+                    });
+            })
+            .fail(function() {
+                // workflow unsupported
+                deferred.reject();
+            });
+
+        return deferred.promise();
+    };
+
+    OctoPrintClient.registerPluginComponent("appkeys", OctoPrintAppKeysClient);
+    return OctoPrintAppKeysClient;
+});
+
+;
+
+// source: plugin/backup/clientjs/backup.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintBackupClient = function(base) {
+        this.base = base;
+        this.url = this.base.getBlueprintUrl("backup");
+    };
+
+    OctoPrintBackupClient.prototype.get = function(refresh, opts) {
+        return this.base.get(this.url, opts);
+    };
+
+    OctoPrintBackupClient.prototype.createBackup = function(exclude, opts) {
+        exclude = exclude || [];
+
+        var data = {
+            exclude: exclude
+        };
+
+        return this.base.postJson(this.url + "backup", data, opts);
+    };
+
+    OctoPrintBackupClient.prototype.deleteBackup = function(backup, opts) {
+        return this.base.delete(this.url + "backup/" + backup, opts);
+    };
+
+    OctoPrintBackupClient.prototype.restoreBackup = function(backup, opts) {
+        var data = {
+            path: backup
+        };
+
+        return this.base.postJson(this.url + "restore", data, opts);
+    };
+
+    OctoPrintBackupClient.prototype.restoreBackupFromUpload = function (file, data) {
+        data = data || {};
+
+        var filename = data.filename || undefined;
+        return this.base.upload(this.url + "restore", file, filename, data);
+    };
+
+    OctoPrintBackupClient.prototype.deleteUnknownPlugins = function (opts) {
+        return this.base.delete(this.url + "unknown_plugins", opts);
+    };
+
+    OctoPrintClient.registerPluginComponent("backup", OctoPrintBackupClient);
+    return OctoPrintBackupClient;
+});
+
+;
+
+// source: plugin/logging/clientjs/logging.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+
+    var OctoPrintLoggingClient = function(base) {
+        this.base = base;
+
+        this.baseUrl = this.base.getBlueprintUrl("logging");
+        this.logsUrl = this.baseUrl + "logs";
+        this.setupUrl = this.baseUrl + "setup";
+    };
+
+    OctoPrintLoggingClient.prototype.get = function(opts) {
+        return this.base.get(this.baseUrl, opts);
+    };
+
+    OctoPrintLoggingClient.prototype.listLogs = function(opts) {
+        return this.base.get(this.logsUrl, opts);
+    };
+
+    OctoPrintLoggingClient.prototype.deleteLog = function(file, opts) {
+        var fileUrl = this.logsUrl + "/" + file;
+        return this.base.delete(fileUrl, opts);
+    };
+
+    OctoPrintLoggingClient.prototype.downloadLog = function(file, opts) {
+        var fileUrl = this.logsUrl + "/" + file;
+        return this.base.download(fileUrl, opts);
+    };
+
+    OctoPrintLoggingClient.prototype.updateLevels = function(config, opts) {
+        return this.base.putJson(this.setupUrl + "/levels", config, opts);
+    };
+
+    //~~ wrapper for backwards compatibility
+
+    var DeprecatedOctoPrintLogsClient = function(base) {
+        this.base = base;
+        this.wrapped = this.base.plugins.logging;
+    };
+
+    DeprecatedOctoPrintLogsClient.prototype.list = function(opts) {
+        log.warn("OctoPrintClient.logs.list has been deprecated as of OctoPrint 1.3.7, use OctoPrintClient.plugins.logging.listLogs instead");
+        return this.wrapped.listLogs(opts);
+    };
+
+    DeprecatedOctoPrintLogsClient.prototype.delete = function(file, opts) {
+        log.warn("OctoPrintClient.logs.delete has been deprecated as of OctoPrint 1.3.7, use OctoPrintClient.plugins.logging.deleteLog instead");
+        return this.wrapped.deleteLog(file, opts);
+    };
+
+    DeprecatedOctoPrintLogsClient.prototype.download = function(file, opts) {
+        log.warn("OctoPrintClient.logs.download has been deprecated as of OctoPrint 1.3.7, use OctoPrintClient.plugins.logging.downloadLog instead");
+        return this.wrapped.downloadLog(file, opts);
+    };
+
+    // register plugin component
+    OctoPrintClient.registerPluginComponent("logging", OctoPrintLoggingClient);
+
+    // also register deprecated client under old endpoint
+    OctoPrintClient.registerComponent("logs", DeprecatedOctoPrintLogsClient);
+
+    return OctoPrintLoggingClient;
+});
+
+;
+
+// source: plugin/pi_support/clientjs/pi_support.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintPiSupportClient = function(base) {
+        this.base = base;
+    };
+
+    OctoPrintPiSupportClient.prototype.get = function(opts) {
+        return this.base.get(this.base.getSimpleApiUrl("pi_support"));
+    };
+
+    OctoPrintClient.registerPluginComponent("pi_support", OctoPrintPiSupportClient);
+    return OctoPrintPiSupportClient;
+});
+
+
+;
+
+// source: plugin/pluginmanager/clientjs/pluginmanager.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintPluginManagerClient = function(base) {
+        this.base = base;
+    };
+
+    OctoPrintPluginManagerClient.prototype.get = function(refresh, opts) {
+        var refresh_repo, refresh_notices;
+        if (_.isPlainObject(refresh)) {
+            refresh_repo = refresh.repo || false;
+            refresh_notices = refresh.notices || false;
+        } else {
+            refresh_repo = refresh;
+            refresh_notices = false;
+        }
+
+        var query = [];
+        if (refresh_repo) query.push("refresh_repository=true");
+        if (refresh_notices) query.push("refresh_notices=true");
+
+        return this.base.get(this.base.getSimpleApiUrl("pluginmanager") + ((query.length) ? "?" + query.join("&") : ""), opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.getWithRefresh = function(opts) {
+        return this.get(true, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.getWithoutRefresh = function(opts) {
+        return this.get(false, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.install = function(pluginUrl, dependencyLinks, opts) {
+        var data = {
+            url: pluginUrl,
+            dependency_links: !!dependencyLinks
+        };
+        return this.base.simpleApiCommand("pluginmanager", "install", data, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.reinstall = function(plugin, pluginUrl, dependencyLinks, opts) {
+        var data = {
+            url: pluginUrl,
+            dependency_links: !!dependencyLinks,
+            reinstall: plugin,
+            force: true
+        };
+        return this.base.simpleApiCommand("pluginmanager", "install", data, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.uninstall = function(plugin, opts) {
+        var data = {
+            plugin: plugin
+        };
+        return this.base.simpleApiCommand("pluginmanager", "uninstall", data, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.enable = function(plugin, opts) {
+        var data = {
+            plugin: plugin
+        };
+        return this.base.simpleApiCommand("pluginmanager", "enable", data, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.disable = function(plugin, opts) {
+        var data = {
+            plugin: plugin
+        };
+        return this.base.simpleApiCommand("pluginmanager", "disable", data, opts);
+    };
+
+    OctoPrintPluginManagerClient.prototype.upload = function(file) {
+        return this.base.upload(this.base.getBlueprintUrl("pluginmanager") + "upload_archive", file);
+    };
+
+    OctoPrintClient.registerPluginComponent("pluginmanager", OctoPrintPluginManagerClient);
+    return OctoPrintPluginManagerClient;
+});
+
+;
+
+// source: plugin/printer_safety_check/clientjs/printer_safety_check.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintPrinterSafetyCheckClient = function(base) {
+        this.base = base;
+    };
+
+    OctoPrintPrinterSafetyCheckClient.prototype.get = function(opts) {
+        return this.base.get(this.base.getSimpleApiUrl("printer_safety_check"), opts);
+    };
+
+    OctoPrintClient.registerPluginComponent("printer_safety_check", OctoPrintPrinterSafetyCheckClient);
+    return OctoPrintPrinterSafetyCheckClient;
+});
+
+;
+
+// source: plugin/softwareupdate/clientjs/softwareupdate.js
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(["OctoPrintClient"], factory);
+    } else {
+        factory(global.OctoPrintClient);
+    }
+})(this, function(OctoPrintClient) {
+    var OctoPrintSoftwareUpdateClient = function(base) {
+        this.base = base;
+
+        var url = this.base.getBlueprintUrl("softwareupdate");
+        this.checkUrl = url + "check";
+        this.updateUrl = url + "update";
+    };
+
+    OctoPrintSoftwareUpdateClient.prototype.checkEntries = function(entries, force, opts) {
+        if (arguments.length == 1 && _.isObject(arguments[0])) {
+            var params = arguments[0];
+            entries = params.entries;
+            force = params.force;
+            opts = params.opts;
+        }
+
+        entries = entries || [];
+        if (typeof entries == "string") {
+            entries = [entries];
+        }
+
+        var data = {};
+        if (!!force) {
+            data.force = true;
+        }
+        if (entries && entries.length) {
+            data.check = entries.join(",");
+        }
+        return this.base.getWithQuery(this.checkUrl, data, opts);
+    };
+
+    OctoPrintSoftwareUpdateClient.prototype.check = function(force, opts) {
+        if (arguments.length === 1 && _.isObject(arguments[0])) {
+            var params = arguments[0];
+            force = params.force;
+            opts = params.opts;
+        }
+
+        return this.checkEntries({entries: [], force: force, opts: opts});
+    };
+
+    OctoPrintSoftwareUpdateClient.prototype.update = function(targets, force, opts) {
+        if (arguments.length === 1 && _.isObject(arguments[0])) {
+            var params = arguments[0];
+            targets = params.targets;
+            force = params.force;
+            opts = params.opts;
+        }
+
+        targets = targets || [];
+        if (typeof targets === "string") {
+            targets = [targets];
+        }
+
+        var data = {
+            targets: targets,
+            force: !!force
+        };
+        return this.base.postJson(this.updateUrl, data, opts);
+    };
+
+    OctoPrintSoftwareUpdateClient.prototype.updateAll = function(force, opts) {
+        if (arguments.length === 1 && _.isObject(arguments[0])) {
+            var params = arguments[0];
+            force = params.force;
+            opts = params.opts;
+        }
+
+        var data = {
+            force: !!force
+        };
+        return this.base.postJson(this.updateUrl, data, opts);
+    };
+
+    OctoPrintClient.registerPluginComponent("softwareupdate", OctoPrintSoftwareUpdateClient);
+    return OctoPrintSoftwareUpdateClient;
 });
 
 ;

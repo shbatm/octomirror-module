@@ -100,8 +100,27 @@ Module.register("octomirror-module", {
 
     initializeSocket: function() {
         var self = this;
-        // Subscribe to live push updates from the server
-        this.opClient.socket.connect();
+
+        let user = "_api", session = "";
+
+        $.ajax({
+            url: this.config.url + "/api/login",
+            type: 'post',
+            data: { passive: true },
+            headers: {
+                "X-Api-Key": this.config.api_key
+            },
+            dataType: 'json',
+        }).done((data)=>{
+            if (this.config.debugMode) { console.log("Octoprint login response:",data); }
+            session = data.session;
+            // Subscribe to live push updates from the server
+            this.opClient.socket.connect();
+        });
+
+        this.opClient.socket.onMessage("connected", (message) => {
+            this.opClient.socket.socket.send(JSON.stringify({ auth: `${user}:${session}`}));
+        });
 
         if (this.config.debugMode) {
             this.opClient.socket.onMessage("*", (message) => {
