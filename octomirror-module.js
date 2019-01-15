@@ -229,15 +229,17 @@ Module.register("octomirror-module", {
         $("#opPercent")[0].textContent = (data.progress.completion) ? Math.round(data.progress.completion) + "%" : "N/A";
 
         if (this.config.showTemps) {
-            var temps = data.temps[data.temps.length - 1];
-            if (typeof temps.bed === "undefined") { // Sometimes the last data point is time only, so back up 1.
-                temps = data.temps[data.temps.length - 2];
-            }
+            if (data.temps.length) {
+                var temps = data.temps[data.temps.length - 1];
+                if (typeof temps.bed === "undefined") { // Sometimes the last data point is time only, so back up 1.
+                    temps = data.temps[data.temps.length - 2];
+                }
 
-            $("#opNozzleTemp")[0].innerHTML = (temps.tool0.actual) ? temps.tool0.actual.round10(1) + "&deg;C" : "N/A";
-            $("#opNozzleTempTgt")[0].innerHTML = (temps.tool0.target) ? Math.round(temps.tool0.target) + "&deg;C" : "N/A";
-            $("#opBedTemp")[0].innerHTML = (temps.bed.actual) ? temps.bed.actual.round10(1) + "&deg;C" : "N/A";
-            $("#opBedTempTgt")[0].innerHTML = (temps.bed.target) ? Math.round(temps.bed.target) + "&deg;C" : "N/A";
+                $("#opNozzleTemp")[0].innerHTML = (temps.tool0.actual) ? temps.tool0.actual.round10(1) + "&deg;C" : "N/A";
+                $("#opNozzleTempTgt")[0].innerHTML = (temps.tool0.target) ? Math.round(temps.tool0.target) + "&deg;C" : "N/A";
+                $("#opBedTemp")[0].innerHTML = (temps.bed.actual) ? temps.bed.actual.round10(1) + "&deg;C" : "N/A";
+                $("#opBedTempTgt")[0].innerHTML = (temps.bed.target) ? Math.round(temps.bed.target) + "&deg;C" : "N/A";
+            }
         }
     },
 
