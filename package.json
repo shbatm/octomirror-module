@@ -1,6 +1,6 @@
 {
   "name": "octomirror-module",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "module for a Magic Mirror device that will interact with an Octoprint Instance",
   "main": "octomirror-module.js",
   "author": "Kieran Ramnarine",
