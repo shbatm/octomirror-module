@@ -55,6 +55,7 @@ To use this module, add it to the modules array in the `config/config.js` file:
 |----------------- |-----------
 | `url` | *Required* - The url or IP address for the OctoPrint Instance.
 | `api_key` | *Required* Your API Key from the OctoPrint service to be used.  You can find this in Octoprint's Options>Features>API, while you're there also enable Cross-Origin-Resorce-Sharing.
+| `printerName` | *Optional* Add a name to show on top of the module;
 | `showStream` | *Optional* Whether or not to show the camera stream.  By default a camera stream is shown, to disable, set to `false`;
 | `streamUrl` | *Optional* Set a custom url for accessing the MJPEG camera stream. By default it uses: `url:8080/?action=stream`.
 | `showTemps` | *Optional* Whether or not so show temperature info<br>*Default:* `true`
