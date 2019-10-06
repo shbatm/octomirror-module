@@ -155,7 +155,8 @@ Module.register("octomirror-module", {
     getTranslations: function() {
         return {
             en: "translations/en.json",
-            de: "translations/de.json"
+            de: "translations/de.json",
+            fr: "translations/fr.json",
         };
     },
 
