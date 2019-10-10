@@ -1,0 +1,15 @@
+{
+    "TITLE": "OctoPrint",
+
+    "STATE": "État ",
+    "FILE": "Fichier ",
+    "ELAPSED": "Temps passé",
+    "REMAINING": "Temps restant",
+    "PERCENT": "Avancement ",
+    "OFFLINE": "Hors ligne",
+
+    "BED": "Lit ",
+    "NOZZLE": "Buse ",
+    "TEMPS": "Températures",
+    "TARGET": "T "
+}

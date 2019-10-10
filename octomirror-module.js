@@ -12,6 +12,7 @@ Module.register("octomirror-module", {
     defaults: {
         updateInterval: 60 * 1000,
         retryDelay: 2500,
+        printerName: "",
         showStream: true,
         showTemps: true,
         showDetailsWhenOffline: true,
@@ -62,7 +63,12 @@ Module.register("octomirror-module", {
 
         var infoWrapper = document.createElement("div");
         infoWrapper.className = "small";
-        infoWrapper.innerHTML = `<span>${this.translate("STATE")}: </span><span id="opStateIcon"></span> <span id="opState" class="title bright"> </span>
+        if (this.config.printerName === "") {
+            infoWrapper.innerHTML = "";
+        } else {
+            infoWrapper.innerHTML = `<span id="opPrinterName" class="title bright">${this.config.printerName}</span><br />`;
+        }
+        infoWrapper.innerHTML += `<span>${this.translate("STATE")}: </span><span id="opStateIcon"></span> <span id="opState" class="title bright"> </span>
                 <br />
                 <div id="opMoreInfo">
                 <span>${this.translate("FILE")}: </span><span id="opFile" class="title bright">N/A</span>
@@ -82,7 +88,6 @@ Module.register("octomirror-module", {
         }
 
         wrapper.appendChild(infoWrapper);
-        wrapper.appendChild(document.createElement("br"));
         return wrapper;
     },
 
@@ -150,7 +155,8 @@ Module.register("octomirror-module", {
     getTranslations: function() {
         return {
             en: "translations/en.json",
-            de: "translations/de.json"
+            de: "translations/de.json",
+            fr: "translations/fr.json",
         };
     },
 
