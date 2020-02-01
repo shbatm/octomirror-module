@@ -14,6 +14,8 @@ Module.register("octomirror-module", {
         retryDelay: 2500,
         printerName: "",
         showStream: true,
+        maxStreamWidth: 0,
+        maxStreamHeight: 0,
         showTemps: true,
         showDetailsWhenOffline: true,
         interactive: true, // Set to false to hide the file drop down and only show the stream.
@@ -27,6 +29,12 @@ Module.register("octomirror-module", {
 
         if (this.config.showStream) {
             var stream = document.createElement("img");
+            if (this.config.maxStreamWidth != 0) {
+                stream.style.maxWidth = this.config.maxStreamWidth + 'px';
+            }
+            if (this.config.maxStreamHeight != 0) {
+                stream.style.maxHeight = this.config.maxStreamHeight + 'px';
+            }
             stream.src = (this.config.streamUrl) ? this.config.streamUrl : this.config.url + ":8080/?action=stream";
             wrapper.appendChild(stream);
         }
