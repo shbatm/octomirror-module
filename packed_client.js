@@ -961,6 +961,7 @@
     var printheadUrl = url + "/printhead";
     var toolUrl = url + "/tool";
     var bedUrl = url + "/bed";
+    var chamberUrl = url + "/chamber";
     var sdUrl = url + "/sd";
 
     var OctoPrintPrinterClient = function(base) {
@@ -977,6 +978,10 @@
 
     OctoPrintPrinterClient.prototype.issueBedCommand = function (command, payload, opts) {
         return this.base.issueCommand(bedUrl, command, payload, opts);
+    };
+
+    OctoPrintPrinterClient.prototype.issueChamberCommand = function (command, payload, opts) {
+        return this.base.issueCommand(chamberUrl, command, payload, opts);
     };
 
     OctoPrintPrinterClient.prototype.issueSdCommand = function (command, payload, opts) {
@@ -1032,6 +1037,23 @@
         var limit = flags.limit || undefined;
 
         var getUrl = bedUrl;
+        if (history) {
+            getUrl += "?history=true";
+            if (limit) {
+                getUrl += "&limit=" + limit;
+            }
+        }
+
+        return this.base.get(getUrl, opts);
+    };
+
+    OctoPrintPrinterClient.prototype.getChamberState = function (flags, opts) {
+        flags = flags || {};
+
+        var history = flags.history || undefined;
+        var limit = flags.limit || undefined;
+
+        var getUrl = chamberUrl;
         if (history) {
             getUrl += "?history=true";
             if (limit) {
@@ -1148,6 +1170,26 @@
         };
 
         return this.issueBedCommand("offset", payload, opts);
+    };
+
+    OctoPrintPrinterClient.prototype.setChamberTargetTemperature = function (target, opts) {
+        target = target || 0;
+
+        var payload = {
+            target: target
+        };
+
+        return this.issueChamberCommand("target", payload, opts);
+    };
+
+    OctoPrintPrinterClient.prototype.setChamberTemperatureOffset = function (offset, opts) {
+        offset = offset || 0;
+
+        var payload = {
+            offset: offset
+        };
+
+        return this.issueChamberCommand("offset", payload, opts);
     };
 
     OctoPrintPrinterClient.prototype.initSd = function (opts) {
