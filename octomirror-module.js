@@ -207,7 +207,19 @@ Module.register("octomirror-module", {
     updateData: function(data) {
         console.log("Updating OctoPrint Data");
         console.log($("#opState")[0]);
-        $("#opState")[0].textContent = (data.state.text.startsWith("Offline (Error: SerialException")) ? this.translate("OFFLINE") : data.state.text;
+        if(data.state.text.startsWith("Offline (Error: SerialException"))
+        {
+            $("#opState")[0].textContent =this.translate("OFFLINE");
+        }
+        else if(data.state.text.startsWith("Offline (Error: Too many consecutive"))
+        {
+            $("#opState")[0].textContent =this.translate("OFFLINE");
+        }
+        else
+        {
+            $("#opState")[0].textContent = data.state.text;
+        }
+        
         var icon = $("#opStateIcon")[0];
         if (data.state.flags.printing) {
             icon.innerHTML = `<i class="fa fa-print" aria-hidden="true" style="color:green;"></i>`;
