@@ -27,7 +27,7 @@ Module.register("octomirror-module", {
 
         if (this.config.showStream) {
             var stream = document.createElement("img");
-            stream.src = (this.config.streamUrl) ? this.config.streamUrl : this.config.url + ":8080/?action=stream";
+            stream.src = (this.config.streamUrl) ? this.config.streamUrl : this.config.url + "/webcam/?action=stream";
             wrapper.appendChild(stream);
         }
 
